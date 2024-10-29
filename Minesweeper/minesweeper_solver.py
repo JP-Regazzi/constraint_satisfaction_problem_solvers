@@ -135,7 +135,21 @@ def solve_minesweeper(filename):
 
 def display_solution(grid, solution, lines, cols):
 
-    # Create a display grid
+    # Colors for numbers and mines
+    colors = {
+        '1': '\033[34m',  # Blue
+        '2': '\033[32m',  # Green
+        '3': '\033[31m',  # Red
+        '4': '\033[35m',  # Purple
+        '5': '\033[33m',  # Yellow
+        '6': '\033[36m',  # Cyan
+        '7': '\033[37m',  # White
+        '8': '\033[90m',  # Bright Black (Gray)
+        'X': '\033[91m',  # Bright Red for mines
+        'reset': '\033[0m'
+    }
+
+    # Create a display grid with the solution
     display_grid = [[' ' for _ in range(cols)] for _ in range(lines)]
     for row in range(lines):
         for col in range(cols):
@@ -144,21 +158,32 @@ def display_solution(grid, solution, lines, cols):
                 display_grid[row][col] = str(grid[row][col])
             elif grid[row][col] == 0:
                 # Unknown cell, check the solution
-                var_name = 'cell_{}_{}'.format(row, col)
+                var_name = f'cell_{row}_{col}'
                 if solution[var_name] == 1:
-                    display_grid[row][col] = 'X'  # Mine
+                    display_grid[row][col] = 'X'
                 else:
-                    display_grid[row][col] = ' '  # Empty
-    # Print the display grid with border
-    horizontal_border = '+' + '--'*cols + '+'
-    print(horizontal_border)
-    for row in display_grid:
-        row_str = '|'
+                    display_grid[row][col] = ' '
+
+    # Build the display string using box-drawing characters
+    horizontal_line = '═══'
+    top_border = '╔' + ('╦'.join([horizontal_line] * cols)) + '╗'
+    bottom_border = '╚' + ('╩'.join([horizontal_line] * cols)) + '╝'
+    middle_border = '╠' + ('╬'.join([horizontal_line] * cols)) + '╣'
+
+    print(top_border)
+    for row_idx, row in enumerate(display_grid):
+        row_str = '║'
         for cell in row:
-            row_str += '{:2}'.format(cell)
-        row_str += ' |'
+            color = colors.get(cell, '')
+            reset = colors['reset'] if color else ''
+            cell_content = f'{color}{cell}{reset}'
+            # Center the cell content
+            row_str += f' {cell_content} ║'
         print(row_str)
-    print(horizontal_border)
+        if row_idx < lines - 1:
+            print(middle_border)
+    print(bottom_border)
+    
 
 if __name__ == "__main__":
 
